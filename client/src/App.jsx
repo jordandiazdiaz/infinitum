@@ -137,7 +137,7 @@ function App() {
       {/* Default Route */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      {/* 404 */}
+      {/* Catch All - 404 */}
       <Route path="*" element={
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
