@@ -12,5 +12,15 @@ export default defineConfig({
         changeOrigin: true
       }
     }
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: process.env.PORT || 3000,
+    strictPort: false,
+    allowedHosts: [
+      '.railway.app',
+      '.up.railway.app',
+      'localhost'
+    ]
   }
 })
