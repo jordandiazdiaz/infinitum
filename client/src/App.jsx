@@ -43,6 +43,9 @@ import ConversationDetail from './pages/chatbot/ConversationDetail'
 import Settings from './pages/Settings'
 import Profile from './pages/Profile'
 
+// Reports
+import Reports from './pages/Reports'
+
 // Google Calendar Callback
 import GoogleCallback from './pages/GoogleCallback'
 
@@ -119,6 +122,9 @@ function App() {
         <Route path="/chatbot" element={<ChatbotDashboard />} />
         <Route path="/chatbot/conversations" element={<ConversationList />} />
         <Route path="/chatbot/conversations/:id" element={<ConversationDetail />} />
+
+        {/* Reports */}
+        <Route path="/reports" element={<Reports />} />
 
         {/* Settings & Profile */}
         <Route path="/settings" element={<Settings />} />
