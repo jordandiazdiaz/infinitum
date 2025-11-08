@@ -227,63 +227,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Client Sources */}
-        <div className="card">
-          <h3 className="card-header">Fuentes de Clientes</h3>
-          <div className="h-64">
-            <Doughnut data={clientsSourceData} options={chartOptions} />
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="card lg:col-span-2">
-          <h3 className="card-header">Actividad Reciente</h3>
-          <div className="space-y-4">
-            <div className="flex items-start space-x-3 pb-4 border-b">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <FiDollarSign className="w-4 h-4 text-green-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 font-medium">Pago recibido</p>
-                <p className="text-sm text-gray-500">Cliente: María González - S/ 5,000</p>
-                <p className="text-xs text-gray-400 mt-1">Hace 2 horas</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 pb-4 border-b">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <FiFileText className="w-4 h-4 text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 font-medium">Nueva cotización creada</p>
-                <p className="text-sm text-gray-500">Boda - 150 invitados</p>
-                <p className="text-xs text-gray-400 mt-1">Hace 5 horas</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 pb-4 border-b">
-              <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <FiCalendar className="w-4 h-4 text-yellow-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 font-medium">Evento confirmado</p>
-                <p className="text-sm text-gray-500">Graduación - 15 de Diciembre</p>
-                <p className="text-xs text-gray-400 mt-1">Hace 1 día</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <FiUsers className="w-4 h-4 text-purple-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 font-medium">Nuevo cliente registrado</p>
-                <p className="text-sm text-gray-500">Ana López - Chatbot WhatsApp</p>
-                <p className="text-xs text-gray-400 mt-1">Hace 2 días</p>
-              </div>
-            </div>
-          </div>
+      {/* Client Sources */}
+      <div className="card">
+        <h3 className="card-header">Fuentes de Clientes</h3>
+        <div className="h-64">
+          <Doughnut data={clientsSourceData} options={chartOptions} />
         </div>
       </div>
 
