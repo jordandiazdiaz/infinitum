@@ -29,7 +29,15 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isRedirecting) {
       // Token expired or invalid
       isRedirecting = true
+
+      // Clear all auth-related data
       localStorage.removeItem('token')
+      localStorage.removeItem('sevem-auth-storage')
+
+      // Clear axios auth header
+      delete api.defaults.headers.common['Authorization']
+
+      // Redirect to login
       window.location.href = '/login'
     }
     return Promise.reject(error)

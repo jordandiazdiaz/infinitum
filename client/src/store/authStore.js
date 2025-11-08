@@ -25,7 +25,8 @@ export const useAuthStore = create(
             isLoading: false
           })
 
-          // Set token in api instance
+          // Set token in localStorage and api instance
+          localStorage.setItem('token', token)
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
           return { success: true }
@@ -55,6 +56,8 @@ export const useAuthStore = create(
             isLoading: false
           })
 
+          // Set token in localStorage and api instance
+          localStorage.setItem('token', token)
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
           return { success: true }
@@ -78,6 +81,8 @@ export const useAuthStore = create(
           isAuthenticated: false,
           error: null
         })
+        // Clear localStorage and api headers
+        localStorage.removeItem('token')
         delete api.defaults.headers.common['Authorization']
       },
 
