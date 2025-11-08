@@ -62,7 +62,7 @@ const Register = () => {
     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto">
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Crear Cuenta</h2>
-        <p className="text-gray-600">Únete a SEVEM y transforma tus eventos</p>
+        <p className="text-gray-600">Únete a Infinitum y transforma tus eventos</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

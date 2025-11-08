@@ -1,7 +1,7 @@
 {
-  "name": "sevem-client",
+  "name": "infinitum-client",
   "version": "1.0.0",
-  "description": "SEVEM - Plataforma de Gestión de Eventos Sociales - Frontend",
+  "description": "Infinitum - Plataforma de Gestión de Eventos Sociales - Frontend",
   "private": true,
   "type": "module",
   "scripts": {

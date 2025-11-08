@@ -53,7 +53,7 @@ const Settings = () => {
   // WhatsApp Settings
   const [whatsappSettings, setWhatsappSettings] = useState({
     autoResponse: true,
-    welcomeMessage: '¡Hola! 👋 Gracias por contactarnos. Soy el asistente virtual de SEVEM. ¿En qué puedo ayudarte?',
+    welcomeMessage: '¡Hola! 👋 Gracias por contactarnos. Soy el asistente virtual de Infinitum. ¿En qué puedo ayudarte?',
     collectName: true,
     collectEmail: true,
     collectEventType: true,
@@ -589,7 +589,7 @@ const Settings = () => {
                       ¿Qué es Google Calendar?
                     </p>
                     <p className="text-sm text-blue-800 mb-3">
-                      Conecta tu cuenta de Google Calendar para sincronizar automáticamente todos los eventos que crees en SEVEM.
+                      Conecta tu cuenta de Google Calendar para sincronizar automáticamente todos los eventos que crees en Infinitum.
                       Esto te permitirá ver todos tus eventos en tu calendario de Google y recibir notificaciones.
                     </p>
                     <p className="text-sm text-blue-800">

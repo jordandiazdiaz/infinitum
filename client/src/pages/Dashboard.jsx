@@ -166,7 +166,7 @@ const Dashboard = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Bienvenido a tu panel de control de SEVEM</p>
+        <p className="text-gray-600">Bienvenido a tu panel de control de Infinitum</p>
       </div>
 
       {/* Stats Grid */}
