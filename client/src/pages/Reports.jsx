@@ -23,6 +23,8 @@ import {
   Filler
 } from 'chart.js'
 import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2'
+import dashboardService from '../services/dashboardService'
+import { toast } from 'react-toastify'
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -43,89 +45,83 @@ const Reports = () => {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [loading, setLoading] = useState(true)
-
-  // Datos simulados (en producción vendrían del backend)
-  const [reportData, setReportData] = useState({
-    totalRevenue: 125500,
-    totalEvents: 48,
-    totalClients: 156,
-    averageEventValue: 2615,
-    revenueGrowth: 23.5,
-    eventsGrowth: 15.2,
-    clientsGrowth: 18.7
-  })
+  const [metrics, setMetrics] = useState(null)
+  const [charts, setCharts] = useState(null)
 
   useEffect(() => {
-    // Simular carga de datos
-    setTimeout(() => setLoading(false), 1000)
+    loadReportData()
   }, [dateRange, startDate, endDate])
 
-  // Datos para gráfico de ingresos mensuales
+  const loadReportData = async () => {
+    try {
+      setLoading(true)
+
+      // Preparar parámetros según el rango de fecha seleccionado
+      let params = {}
+      if (startDate && endDate) {
+        params = { startDate, endDate }
+      } else if (dateRange === 'month') {
+        params = { months: 1 }
+      } else if (dateRange === 'year') {
+        params = { months: 12 }
+      } else if (dateRange === 'week') {
+        params = { days: 7 }
+      }
+
+      const [metricsRes, chartsRes] = await Promise.all([
+        dashboardService.getMetrics(params),
+        dashboardService.getCharts({ months: 12 })
+      ])
+
+      setMetrics(metricsRes.data)
+      setCharts(chartsRes.data)
+    } catch (error) {
+      toast.error('Error al cargar los reportes')
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Datos para gráfico de ingresos mensuales - usando data real del backend
   const revenueChartData = {
-    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    labels: charts?.revenueByMonth?.map(d => d.month) || [],
     datasets: [
       {
-        label: 'Ingresos 2025',
-        data: [8500, 12000, 15000, 18500, 22000, 19500, 25000, 28000, 23500, 26000, 29000, 31500],
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        label: 'Ingresos',
+        data: charts?.revenueByMonth?.map(d => d.revenue) || [],
+        borderColor: 'rgb(255, 195, 0)',
+        backgroundColor: 'rgba(255, 195, 0, 0.1)',
         fill: true,
         tension: 0.4
-      },
-      {
-        label: 'Ingresos 2024',
-        data: [7000, 9500, 11000, 14000, 16500, 15000, 18000, 20000, 17500, 19000, 21000, 23000],
-        borderColor: 'rgb(156, 163, 175)',
-        backgroundColor: 'rgba(156, 163, 175, 0.05)',
-        fill: true,
-        tension: 0.4,
-        borderDash: [5, 5]
       }
     ]
   }
 
-  // Datos para gráfico de eventos por tipo
-  const eventTypeChartData = {
-    labels: ['Bodas', 'XV Años', 'Cumpleaños', 'Corporativos', 'Baby Shower', 'Otros'],
+  // Datos para gráfico de eventos por mes - usando data real del backend
+  const eventsChartData = {
+    labels: charts?.eventsByMonth?.map(d => d.month) || [],
     datasets: [
       {
-        label: 'Eventos por Tipo',
-        data: [25, 12, 8, 5, 4, 6],
-        backgroundColor: [
-          'rgba(239, 68, 68, 0.8)',
-          'rgba(245, 158, 11, 0.8)',
-          'rgba(16, 185, 129, 0.8)',
-          'rgba(99, 102, 241, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(107, 114, 128, 0.8)'
-        ],
-        borderColor: [
-          'rgb(239, 68, 68)',
-          'rgb(245, 158, 11)',
-          'rgb(16, 185, 129)',
-          'rgb(99, 102, 241)',
-          'rgb(236, 72, 153)',
-          'rgb(107, 114, 128)'
-        ],
-        borderWidth: 2
+        label: 'Eventos',
+        data: charts?.eventsByMonth?.map(d => d.events) || [],
+        backgroundColor: 'rgba(255, 195, 0, 0.8)'
       }
     ]
   }
 
-  // Datos para gráfico de ingresos por tipo
-  const revenueByTypeChartData = {
-    labels: ['Bodas', 'XV Años', 'Cumpleaños', 'Corporativos', 'Baby Shower', 'Otros'],
+  // Datos para gráfico de fuentes de clientes - usando data real del backend
+  const clientsSourceData = {
+    labels: charts?.clientsBySource?.map(d => d._id) || [],
     datasets: [
       {
-        label: 'Ingresos por Tipo (S/)',
-        data: [85000, 28000, 15000, 22000, 8000, 12000],
+        data: charts?.clientsBySource?.map(d => d.count) || [],
         backgroundColor: [
-          'rgba(239, 68, 68, 0.8)',
-          'rgba(245, 158, 11, 0.8)',
-          'rgba(16, 185, 129, 0.8)',
-          'rgba(99, 102, 241, 0.8)',
-          'rgba(236, 72, 153, 0.8)',
-          'rgba(107, 114, 128, 0.8)'
+          'rgba(255, 195, 0, 0.8)',
+          'rgba(140, 120, 80, 0.8)',
+          'rgba(66, 66, 66, 0.8)',
+          'rgba(255, 152, 0, 0.8)',
+          'rgba(76, 175, 80, 0.8)'
         ]
       }
     ]
@@ -195,6 +191,17 @@ const Reports = () => {
   const exportToExcel = () => {
     alert('Exportando a Excel... (funcionalidad en desarrollo)')
     // Aquí integrarías una librería como xlsx
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando reportes...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -285,237 +292,124 @@ const Reports = () => {
       </div>
 
       {/* Tarjetas de Resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Ingresos Totales */}
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                S/ {reportData.totalRevenue.toLocaleString()}
-              </h3>
-              <p className="text-sm text-green-600 mt-2 flex items-center">
-                <FiTrendingUp className="w-4 h-4 mr-1" />
-                +{reportData.revenueGrowth}% vs mes anterior
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <FiDollarSign className="w-6 h-6 text-green-600" />
+      {!loading && metrics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Ingresos Totales */}
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2">
+                  S/ {(metrics.revenue?.thisMonth || 0).toLocaleString()}
+                </h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Este período
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <FiDollarSign className="w-6 h-6 text-green-600" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Total de Eventos */}
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total de Eventos</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                {reportData.totalEvents}
-              </h3>
-              <p className="text-sm text-green-600 mt-2 flex items-center">
-                <FiTrendingUp className="w-4 h-4 mr-1" />
-                +{reportData.eventsGrowth}% vs mes anterior
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <FiCalendar className="w-6 h-6 text-blue-600" />
+          {/* Total de Eventos */}
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total de Eventos</p>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2">
+                  {metrics.events?.completedThisMonth || 0}
+                </h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Este mes
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <FiCalendar className="w-6 h-6 text-blue-600" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Total de Clientes */}
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                {reportData.totalClients}
-              </h3>
-              <p className="text-sm text-green-600 mt-2 flex items-center">
-                <FiTrendingUp className="w-4 h-4 mr-1" />
-                +{reportData.clientsGrowth}% vs mes anterior
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <FiUsers className="w-6 h-6 text-purple-600" />
+          {/* Total de Clientes */}
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2">
+                  {metrics.clients?.total || 0}
+                </h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Clientes activos
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <FiUsers className="w-6 h-6 text-purple-600" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Valor Promedio por Evento */}
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Valor Promedio</p>
-              <h3 className="text-2xl font-bold text-gray-900 mt-2">
-                S/ {reportData.averageEventValue.toLocaleString()}
-              </h3>
-              <p className="text-sm text-gray-500 mt-2">
-                Por evento
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <FiBarChart2 className="w-6 h-6 text-yellow-600" />
+          {/* Tasa de Conversión */}
+          <div className="card">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Tasa de Conversión</p>
+                <h3 className="text-2xl font-bold text-gray-900 mt-2">
+                  {metrics.quotations?.conversionRate || 0}%
+                </h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  Cotizaciones a eventos
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <FiBarChart2 className="w-6 h-6 text-yellow-600" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Gráficos Principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Gráfico de Ingresos Mensuales */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Ingresos Mensuales</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Comparación anual</span>
-            </div>
-          </div>
-          <div style={{ height: '300px' }}>
-            <Line data={revenueChartData} options={lineChartOptions} />
-          </div>
-        </div>
-
-        {/* Gráfico de Eventos por Tipo */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Eventos por Tipo</h3>
-            <FiPieChart className="text-gray-400" />
-          </div>
-          <div style={{ height: '300px' }}>
-            <Doughnut data={eventTypeChartData} options={pieChartOptions} />
-          </div>
-        </div>
-      </div>
-
-      {/* Gráfico de Ingresos por Tipo */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Ingresos por Tipo de Evento</h3>
-          <span className="text-sm text-gray-500">En Soles (S/)</span>
-        </div>
-        <div style={{ height: '300px' }}>
-          <Bar data={revenueByTypeChartData} options={barChartOptions} />
-        </div>
-      </div>
-
-      {/* Top Clientes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Mejores Clientes */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Mejores Clientes</h3>
-          <div className="space-y-4">
-            {[
-              { name: 'María González', events: 5, revenue: 45000 },
-              { name: 'Juan Pérez', events: 3, revenue: 28000 },
-              { name: 'Ana Torres', events: 4, revenue: 24500 },
-              { name: 'Carlos Ramírez', events: 2, revenue: 18000 },
-              { name: 'Lucía Fernández', events: 3, revenue: 15500 }
-            ].map((client, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-semibold text-primary-600">#{index + 1}</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{client.name}</p>
-                    <p className="text-sm text-gray-500">{client.events} eventos</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">S/ {client.revenue.toLocaleString()}</p>
+      {!loading && charts && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Gráfico de Ingresos Mensuales */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Ingresos por Mes</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">Últimos 12 meses</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Eventos Más Rentables */}
-        <div className="card">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Eventos Más Rentables</h3>
-          <div className="space-y-4">
-            {[
-              { name: 'Boda María & Juan', date: '15 Mar 2025', revenue: 18500, type: 'Boda' },
-              { name: 'XV Años Sofía', date: '22 Feb 2025', revenue: 12000, type: 'XV Años' },
-              { name: 'Evento Corporativo Tech', date: '10 Abr 2025', revenue: 15000, type: 'Corporativo' },
-              { name: 'Boda Ana & Carlos', date: '5 May 2025', revenue: 19800, type: 'Boda' },
-              { name: 'Cumpleaños Roberto', date: '18 Mar 2025', revenue: 8500, type: 'Cumpleaños' }
-            ].map((event, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">{event.name}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs px-2 py-1 bg-white rounded-full text-gray-600">
-                      {event.type}
-                    </span>
-                    <span className="text-xs text-gray-500">{event.date}</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-green-600">S/ {event.revenue.toLocaleString()}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Métricas Adicionales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Tasa de Conversión */}
-        <div className="card">
-          <h4 className="text-sm font-medium text-gray-600 mb-2">Tasa de Conversión</h4>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900">68%</span>
-            <span className="text-sm text-green-600">+5% vs anterior</span>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">Cotizaciones → Eventos confirmados</p>
-          <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-green-500 h-2 rounded-full" style={{ width: '68%' }}></div>
-          </div>
-        </div>
-
-        {/* Ticket Promedio */}
-        <div className="card">
-          <h4 className="text-sm font-medium text-gray-600 mb-2">Ticket Promedio</h4>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900">S/ 2,615</span>
-            <span className="text-sm text-green-600">+12%</span>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">Valor promedio por evento</p>
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>Mínimo: S/ 800</span>
-              <span>Máximo: S/ 19,800</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Clientes Recurrentes */}
-        <div className="card">
-          <h4 className="text-sm font-medium text-gray-600 mb-2">Clientes Recurrentes</h4>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-gray-900">42%</span>
-            <span className="text-sm text-green-600">+8%</span>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">Clientes con 2+ eventos</p>
-          <div className="mt-4 flex gap-2">
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">Nuevos</div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '58%' }}></div>
+              <div style={{ height: '300px' }}>
+                <Line data={revenueChartData} options={lineChartOptions} />
               </div>
             </div>
-            <div className="flex-1">
-              <div className="text-xs text-gray-500 mb-1">Recurrentes</div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-purple-500 h-2 rounded-full" style={{ width: '42%' }}></div>
+
+            {/* Gráfico de Eventos por Mes */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Eventos por Mes</h3>
+                <FiBarChart2 className="text-gray-400" />
+              </div>
+              <div style={{ height: '300px' }}>
+                <Bar data={eventsChartData} options={barChartOptions} />
               </div>
             </div>
           </div>
-        </div>
-      </div>
+
+          {/* Gráfico de Fuentes de Clientes */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Fuentes de Clientes</h3>
+              <FiPieChart className="text-gray-400" />
+            </div>
+            <div style={{ height: '300px' }}>
+              <Doughnut data={clientsSourceData} options={pieChartOptions} />
+            </div>
+          </div>
+        </>
+      )}
+
     </div>
   )
 }
