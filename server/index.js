@@ -18,6 +18,7 @@ const invoiceRoutes = require('./routes/invoices');
 const dashboardRoutes = require('./routes/dashboard');
 const chatbotRoutes = require('./routes/chatbot');
 const calendarRoutes = require('./routes/calendar');
+const notificationRoutes = require('./routes/notifications');
 
 // Inicializar app
 const app = express();
@@ -63,6 +64,7 @@ app.use('/api/invoices', invoiceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Ruta de bienvenida
 app.get('/', (req, res) => {
