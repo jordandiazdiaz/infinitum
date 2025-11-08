@@ -58,8 +58,11 @@ const Dashboard = () => {
       setMetrics(metricsRes.data)
       setCharts(chartsRes.data)
     } catch (error) {
-      toast.error('Error al cargar el dashboard')
-      console.error(error)
+      // Don't show error toast for 401 (will redirect to login)
+      if (error.response?.status !== 401) {
+        toast.error('Error al cargar el dashboard')
+        console.error(error)
+      }
     } finally {
       setLoading(false)
     }

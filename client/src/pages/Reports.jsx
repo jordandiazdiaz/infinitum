@@ -76,8 +76,11 @@ const Reports = () => {
       setMetrics(metricsRes.data)
       setCharts(chartsRes.data)
     } catch (error) {
-      toast.error('Error al cargar los reportes')
-      console.error(error)
+      // Don't show error toast for 401 (will redirect to login)
+      if (error.response?.status !== 401) {
+        toast.error('Error al cargar los reportes')
+        console.error(error)
+      }
     } finally {
       setLoading(false)
     }

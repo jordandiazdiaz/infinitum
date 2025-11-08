@@ -22,11 +22,13 @@ api.interceptors.request.use(
 )
 
 // Response interceptor
+let isRedirecting = false
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !isRedirecting) {
       // Token expired or invalid
+      isRedirecting = true
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
